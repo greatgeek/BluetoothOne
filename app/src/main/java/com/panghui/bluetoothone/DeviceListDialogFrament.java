@@ -19,6 +19,7 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.ListView;
+import android.widget.TextView;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -43,7 +44,7 @@ public class DeviceListDialogFrament extends DialogFragment {
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         getDialog().setTitle("请选择连接设备");
         mActivity=getActivity();
-        mBtAdapter=BluetoothAdapter.getDefaultAdapter();
+        mBtAdapter=BluetoothAdapter.getDefaultAdapter();// 设置蓝牙：1.获取 BluetoothAdapter
         registerBluetoothReceier();
         openBluetooth();
         return inflater.inflate(R.layout.device_list,container,false);
@@ -59,7 +60,18 @@ public class DeviceListDialogFrament extends DialogFragment {
         mListView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-
+                if (mCallback!=null){
+                    mBtAdapter.cancelDiscovery();
+                    String info=((TextView) view).getText().toString();
+                    if (NO_DEVICE_DATA.equals(info)){
+                        return;
+                    }
+                    // 减去17意思是仅保留Mac地址，不要名称
+                    String address = info.substring(info.length()-17);
+                    BluetoothDevice device= mBtAdapter.getRemoteDevice(address);
+                    mCallback.onSelectedItem(address);
+                    dismiss();
+                }
             }
         });
 
@@ -95,10 +107,11 @@ public class DeviceListDialogFrament extends DialogFragment {
     private void doDiscovery(){
         findPairedDevices();
         mBtAdapter.startDiscovery();
+        mBtnSearch.setText("停止搜索");
     }
 
     /**开启蓝牙*/
-    public void openBluetooth(){
+    public void openBluetooth(){// 设置蓝牙：2.启用蓝牙
         if (!mBtAdapter.isEnabled()){
             Intent enableBtIntent=new Intent(BluetoothAdapter.ACTION_REQUEST_ENABLE);
             startActivityForResult(enableBtIntent,1);
@@ -106,19 +119,21 @@ public class DeviceListDialogFrament extends DialogFragment {
     }
 
     /**获取手机上已匹配过的蓝牙设备*/
-    private void findPairedDevices(){
+    private void findPairedDevices(){// 查询已配对的设备
         Set<BluetoothDevice> pairedDevices=mBtAdapter.getBondedDevices();
 
         if (mBtAdapter!=null&&mBtAdapter.isDiscovering()){
             mDeviceList.clear();
             mListViewAdapter.notifyDataSetChanged();
         }
-
+        // If there are paired devices
         if (pairedDevices.size()>0){
             mDeviceList.clear();
+            // Loop through paired devices
             for (BluetoothDevice device : pairedDevices){
                 String str=device.getName()+":"+device.getAddress();
                 if (!mDeviceList.contains(str)){
+                    // Add the name and address to an array to show in a ListView
                     mDeviceList.add(str);
                     mListViewAdapter.notifyDataSetChanged();
                 }
@@ -130,7 +145,7 @@ public class DeviceListDialogFrament extends DialogFragment {
     }
 
     /**注册蓝牙广播接收器:为这个接收器注册了两个感兴趣的事件，一个是ACTION_FOUND,另一个是ACTION_DISCOVERY_FINISHED*/
-    private void registerBluetoothReceier(){
+    private void registerBluetoothReceier(){// 发现设备
         IntentFilter intentFilter=new IntentFilter();
         intentFilter.addAction(BluetoothDevice.ACTION_FOUND);
         intentFilter.addAction(BluetoothAdapter.ACTION_DISCOVERY_FINISHED);
@@ -147,6 +162,7 @@ public class DeviceListDialogFrament extends DialogFragment {
     }
 
     /**************************anonymous class define*******************************************************/
+    // 发现设备
     // Create a BroadcastReceiver for ACTION_FOUND
     private BroadcastReceiver mReceiver =new BroadcastReceiver() {
         @Override
