@@ -88,4 +88,5 @@
             android:scrollbars="vertical"
             android:text="test"/>
     </ScrollView>
+
 </LinearLayout>
