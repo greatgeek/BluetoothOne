@@ -25,14 +25,14 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:src="@drawable/connetc" />
+            android:background="@drawable/connect_selector"/>
         <ImageView
             android:id="@+id/im_delete"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_marginLeft="50dp"
             android:layout_marginRight="50dp"
-            android:src="@drawable/delete"/>
+            android:background="@drawable/delete_selector"/>
         <CheckBox
             android:id="@+id/cb_hex"
             android:layout_width="wrap_content"
@@ -67,7 +67,7 @@
             android:layout_height="wrap_content"
             android:layout_marginLeft="30dp"
             android:layout_marginRight="30dp"
-            android:src="@drawable/send"/>
+            android:background="@drawable/send_selector"/>
     </LinearLayout>
     <ScrollView
         android:id="@+id/scrol_view"

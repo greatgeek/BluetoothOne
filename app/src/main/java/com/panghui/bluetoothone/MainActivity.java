@@ -116,18 +116,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         case BluetoothChatService.STATE_CONNECTED:
                             String deviceName = msg.obj.toString();
                             tv_label.setText("connected to "+ deviceName);
-                            Toast.makeText(activity,"connected to "+deviceName,Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity,"connected to "+deviceName,Toast.LENGTH_SHORT).show();
                             //TODO
                             break;
                         case BluetoothChatService.STATE_CONNECTING:
                             tv_label.setText("connecting ...");
-                            Toast.makeText(activity,"connecting ...",Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity,"connecting ...",Toast.LENGTH_SHORT).show();
                             //TODO
                             break;
                         case BluetoothChatService.STATE_NONE:
                             tv_label.setText("no connection");
                             //TODO
-                            Toast.makeText(activity,"no connection", Toast.LENGTH_LONG).show();
+                            Toast.makeText(activity,"no connection", Toast.LENGTH_SHORT).show();
                             break;
                     }
                     break;
