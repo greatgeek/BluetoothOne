@@ -76,7 +76,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //高精度定位模式
         mLocationOption.setLocationMode(AMapLocationClientOption.AMapLocationMode.Hight_Accuracy);
         //自定义连续定位
-        mLocationOption.setInterval(1000);
+        mLocationOption.setInterval(5000);
         //不需要返回地址信息
         mLocationOption.setNeedAddress(false);
 
