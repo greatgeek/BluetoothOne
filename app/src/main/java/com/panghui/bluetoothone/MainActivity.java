@@ -25,6 +25,7 @@ import com.amap.api.location.AMapLocationClient;
 import com.amap.api.location.AMapLocationClientOption;
 import com.amap.api.location.AMapLocationListener;
 import com.panghui.bluetoothone.base.AppConst;
+import com.panghui.bluetoothone.http.HttpUtils;
 import com.panghui.bluetoothone.utils.HexUtils;
 
 import java.util.ArrayList;
@@ -53,6 +54,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Context mContext;
     double mylatitude;
     double mylongtitude;
+
+    /**网络部分*/
+    private String updateLocationUrl="http://120.79.91.50/DreamBike/DreamBike_updateLocation.php";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -257,9 +261,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String lat=Double.toString(mylatitude);
             String lon=Double.toString(mylongtitude);
             Toast.makeText(MainActivity.this,lat+"|"+lon,Toast.LENGTH_SHORT).show();
+            HttpUtils.UpdateLocation(updateLocationUrl,"hope1",lat,lon);
         }else{
             Log.e("AmapError","location Error, ErrorCode:"
             +aMapLocation.getErrorCode()+",errorInfo:"+aMapLocation.getErrorInfo());
         }
     }
+
+
 }
