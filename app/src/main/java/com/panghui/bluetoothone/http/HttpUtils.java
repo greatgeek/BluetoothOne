@@ -1,5 +1,10 @@
 package com.panghui.bluetoothone.http;
 
+import android.os.Handler;
+import android.util.Log;
+
+import com.panghui.bluetoothone.base.AppConst;
+
 import okhttp3.FormBody;
 import okhttp3.OkHttpClient;
 import okhttp3.Request;
@@ -27,6 +32,39 @@ public class HttpUtils {
 
                 }catch (Exception e){
                     e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
+    static public void GetBikeStatus(final Handler mHandler,final String url,final String bikeID){
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                while(true){
+                    try{
+                        OkHttpClient client = new OkHttpClient();
+                        RequestBody requestBody=new FormBody.Builder()
+                                .add("bikeID",bikeID)
+                                .build();
+                        Request request = new Request.Builder()
+                                .url(url)
+                                .post(requestBody)
+                                .build();
+                        Response response = client.newCall(request).execute();
+                        if (response.code() == 200){
+                            String status=response.body().string();
+                            Log.d("BikeStatus:",status);
+                            if (status.equals("unlock")){
+                                mHandler.obtainMessage(AppConst.BIKE_STATUS_UNLOCKed).sendToTarget();
+                                break;
+                            }else{
+                                mHandler.obtainMessage(AppConst.BIKE_STATUS_LOCKED).sendToTarget();
+                            }
+                        }
+                    }catch (Exception e){
+                        e.printStackTrace();
+                    }
                 }
             }
         }).start();

@@ -57,6 +57,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**网络部分*/
     private String updateLocationUrl="http://120.79.91.50/DreamBike/DreamBike_updateLocation.php";
+    private String GetBikeStatusUrl="http://120.79.91.50/DreamBike/DreamBike_bluetoothlockSlave.php";
+    private boolean isFristGetBikeStatus=true;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,6 +251,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     break;
                 case AppConst.MESSAGE_TOAST:
                     Toast.makeText(activity,msg.getData().getString(AppConst.TOAST),Toast.LENGTH_LONG).show();
+                    break;
+                case AppConst.BIKE_STATUS_UNLOCKed:
+                    Toast.makeText(activity,"It's status is Unlocked!",Toast.LENGTH_LONG).show();
+                    et_receive.setText("unlocked!");
+                    break;
+                case AppConst.BIKE_STATUS_LOCKED:
+                    Toast.makeText(activity,"It's still locked!",Toast.LENGTH_SHORT).show();
+                    et_receive.setText("locked!");
+                    break;
+                default:
             }
         }
     };
@@ -262,6 +274,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String lon=Double.toString(mylongtitude);
             Toast.makeText(MainActivity.this,lat+"|"+lon,Toast.LENGTH_SHORT).show();
             HttpUtils.UpdateLocation(updateLocationUrl,"hope1",lat,lon);
+            if (isFristGetBikeStatus){
+                HttpUtils.GetBikeStatus(mHandler,GetBikeStatusUrl,"hope1");
+                isFristGetBikeStatus=false;
+            }
         }else{
             Log.e("AmapError","location Error, ErrorCode:"
             +aMapLocation.getErrorCode()+",errorInfo:"+aMapLocation.getErrorInfo());

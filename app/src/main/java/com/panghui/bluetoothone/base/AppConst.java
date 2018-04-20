@@ -7,5 +7,7 @@ public class AppConst {
     public static final int MESSAGE_WRITE=3;
     public static final int MESSAGE_DEVICE_NAME=4;
     public static final int MESSAGE_TOAST=5;
+    public static final int BIKE_STATUS_LOCKED=6;
+    public static final int BIKE_STATUS_UNLOCKed=7;
     public static final String TOAST="toast";
 }
