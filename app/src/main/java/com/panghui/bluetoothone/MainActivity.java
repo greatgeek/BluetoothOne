@@ -13,6 +13,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -55,10 +56,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     double mylatitude;
     double mylongtitude;
 
+    /**查询数据库*/
+    Button query_sql;
+
     /**网络部分*/
     private String updateLocationUrl="http://120.79.91.50/DreamBike/DreamBike_updateLocation.php";
     private String GetBikeStatusUrl="http://120.79.91.50/DreamBike/DreamBike_bluetoothlockSlave.php";
-    private boolean isFristGetBikeStatus=true;
+    private boolean isquerying=false;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -161,10 +165,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         et_receive=(EditText)findViewById(R.id.et_receive);
         cb_hex=(CheckBox)findViewById(R.id.cb_hex);
         mScrollView=(ScrollView)findViewById(R.id.scrol_view);
+        query_sql=(Button)findViewById(R.id.query_sql);
 
         connect.setOnClickListener(this);
         delete.setOnClickListener(this);
         send.setOnClickListener(this);
+        query_sql.setOnClickListener(this);
     }
 
     private void showDialog(){
@@ -187,6 +193,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.im_delete:
                 et_receive.setText("");
+                break;
+            case R.id.query_sql:
+                if (isquerying==false) {
+                    HttpUtils.GetBikeStatus(mHandler, GetBikeStatusUrl, "hope1");
+                    Toast.makeText(mContext,"开始查询...",Toast.LENGTH_SHORT).show();
+                    query_sql.setText("query......");
+                    isquerying=true;
+                }else if (isquerying==true){
+                    Toast.makeText(mContext,"正在查询,请稍后再试...",Toast.LENGTH_SHORT).show();
+                }
                 break;
             case R.id.im_send:
                 mChatService.write(et_send.getText().toString().getBytes());
@@ -255,9 +271,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case AppConst.BIKE_STATUS_UNLOCKed:
                     Toast.makeText(activity,"It's status is Unlocked!",Toast.LENGTH_LONG).show();
                     et_receive.setText("unlocked!");
+                    query_sql.setText("query sql");
+                    isquerying=false;
                     break;
                 case AppConst.BIKE_STATUS_LOCKED:
-                    Toast.makeText(activity,"It's still locked!",Toast.LENGTH_SHORT).show();
+                    //Toast.makeText(activity,"It's still locked!",Toast.LENGTH_SHORT).show();
                     et_receive.setText("locked!");
                     break;
                 default:
@@ -274,10 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String lon=Double.toString(mylongtitude);
             Toast.makeText(MainActivity.this,lat+"|"+lon,Toast.LENGTH_SHORT).show();
             HttpUtils.UpdateLocation(updateLocationUrl,"hope1",lat,lon);
-            if (isFristGetBikeStatus){
-                HttpUtils.GetBikeStatus(mHandler,GetBikeStatusUrl,"hope1");
-                isFristGetBikeStatus=false;
-            }
+
         }else{
             Log.e("AmapError","location Error, ErrorCode:"
             +aMapLocation.getErrorCode()+",errorInfo:"+aMapLocation.getErrorInfo());

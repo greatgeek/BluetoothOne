@@ -41,32 +41,36 @@ public class HttpUtils {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                while(true){
-                    try{
+
+                    try {
                         OkHttpClient client = new OkHttpClient();
-                        RequestBody requestBody=new FormBody.Builder()
-                                .add("bikeID",bikeID)
+                        RequestBody requestBody = new FormBody.Builder()
+                                .add("bikeID", bikeID)
                                 .build();
                         Request request = new Request.Builder()
                                 .url(url)
                                 .post(requestBody)
                                 .build();
-                        Response response = client.newCall(request).execute();
-                        if (response.code() == 200){
-                            String status=response.body().string();
-                            Log.d("BikeStatus:",status);
-                            if (status.equals("unlock")){
-                                mHandler.obtainMessage(AppConst.BIKE_STATUS_UNLOCKed).sendToTarget();
-                                break;
-                            }else{
-                                mHandler.obtainMessage(AppConst.BIKE_STATUS_LOCKED).sendToTarget();
+                        Response response;
+                        String status;
+
+                        while (true) {
+                            response = client.newCall(request).execute();
+                            if (response.code() == 200) {
+                                status = response.body().string();
+                                Log.d("BikeStatus:", status);
+                                if (status.equals("unlock")) {
+                                    mHandler.obtainMessage(AppConst.BIKE_STATUS_UNLOCKed).sendToTarget();
+                                    break;
+                                } else {
+                                    mHandler.obtainMessage(AppConst.BIKE_STATUS_LOCKED).sendToTarget();
+                                }
                             }
+                            }
+                        }catch(Exception e){
+                            e.printStackTrace();
                         }
-                    }catch (Exception e){
-                        e.printStackTrace();
-                    }
                 }
-            }
         }).start();
     }
 }
