@@ -45,6 +45,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private CheckBox cb_hex;
     private ScrollView mScrollView;
 
+    private final String bikeID="hope1";
+
     /**定位部分*/
     //声明 AMapLocationClient 类对象
     public AMapLocationClient mLocationClient=null;
@@ -58,6 +60,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     /**查询数据库*/
     Button query_sql;
+    /**是否连接蓝牙*/
+    private boolean isConnectedBluetooth=false;
 
     /**网络部分*/
     private String updateLocationUrl="http://120.79.91.50/DreamBike/DreamBike_updateLocation.php";
@@ -196,7 +200,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case R.id.query_sql:
                 if (isquerying==false) {
-                    HttpUtils.GetBikeStatus(mHandler, GetBikeStatusUrl, "hope1");
+                    HttpUtils.GetBikeUnlockStatus(mHandler, GetBikeStatusUrl, bikeID);
                     Toast.makeText(mContext,"开始查询...",Toast.LENGTH_SHORT).show();
                     query_sql.setText("query......");
                     isquerying=true;
@@ -239,6 +243,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             String deviceName = msg.obj.toString();
                             tv_label.setText("connected to "+ deviceName);
                             Toast.makeText(activity,"connected to "+deviceName,Toast.LENGTH_SHORT).show();
+                            isConnectedBluetooth=true;
                             //TODO
                             break;
                         case BluetoothChatService.STATE_CONNECTING:
@@ -259,6 +264,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case AppConst.MESSAGE_READ:
                     byte[] buf = (byte[]) msg.obj;
                     String readTxt = new String(buf,0,buf.length);
+                    /**这里形成一个闭环操作*/
+                    if (readTxt.trim().equals("U")){//启动监听上锁动作
+                        //TODO
+                        HttpUtils.GetBikeLockStatus(mHandler,GetBikeStatusUrl,bikeID);
+
+                    }else if(readTxt.trim().equals("L")){//启动监听解锁动作
+                        //TODO
+                        HttpUtils.GetBikeUnlockStatus(mHandler,GetBikeStatusUrl,bikeID);
+                    }
+
                     if (cb_hex.isChecked()){
                         readTxt = HexUtils.bytesToHexStringWithSpace(buf);
                     }
@@ -271,12 +286,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 case AppConst.BIKE_STATUS_UNLOCKed:
                     Toast.makeText(activity,"It's status is Unlocked!",Toast.LENGTH_LONG).show();
                     et_receive.setText("unlocked!");
-                    query_sql.setText("query sql");
-                    isquerying=false;
+                    //query_sql.setText("query sql");
+                    //isquerying=false;
                     break;
                 case AppConst.BIKE_STATUS_LOCKED:
-                    //Toast.makeText(activity,"It's still locked!",Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity,"It's still locked!",Toast.LENGTH_SHORT).show();
                     et_receive.setText("locked!");
+                    break;
+                case AppConst.SEND_UNLOCK_SIGNAL:
+                    if (isConnectedBluetooth){
+                        mChatService.write("U".getBytes());//发送单个字符给MCU即可解锁
+                    }
+                    else {
+                        Toast.makeText(MainActivity.this,"蓝牙未连接！",Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case AppConst.SEND_LOCK_SIGNAL:
+                    if (isConnectedBluetooth){
+                        mChatService.write("L".getBytes());
+                    }else{
+                        Toast.makeText(MainActivity.this,"蓝牙未连接！",Toast.LENGTH_SHORT).show();
+                    }
                     break;
                 default:
             }
@@ -291,7 +321,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             String lat=Double.toString(mylatitude);
             String lon=Double.toString(mylongtitude);
             Toast.makeText(MainActivity.this,lat+"|"+lon,Toast.LENGTH_SHORT).show();
-            HttpUtils.UpdateLocation(updateLocationUrl,"hope1",lat,lon);
+            HttpUtils.UpdateLocation(updateLocationUrl,bikeID,lat,lon);
 
         }else{
             Log.e("AmapError","location Error, ErrorCode:"
