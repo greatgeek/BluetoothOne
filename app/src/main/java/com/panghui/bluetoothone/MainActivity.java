@@ -199,18 +199,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 et_receive.setText("");
                 break;
             case R.id.query_sql:
-                bikeID=bikeID_edit.getText().toString().trim();
-                if (bikeID.equals("")){
-                    Toast.makeText(mContext,"请输入BikeID，再查询！",Toast.LENGTH_SHORT).show();
+                if(query_sql.getText().toString().trim().equals("查询")){
+                    bikeID=bikeID_edit.getText().toString().trim();
+                    if (bikeID.equals("")){
+                        Toast.makeText(mContext,"请输入BikeID，再查询！",Toast.LENGTH_SHORT).show();
+                    }else{
+                            HttpUtils.GetBikeUnlockStatus(mHandler, GetBikeStatusUrl, bikeID);
+                            Toast.makeText(mContext,"开始查询...",Toast.LENGTH_SHORT).show();
+                            query_sql.setText("取消查询");
+                    }
+                }else if(query_sql.getText().toString().trim().equals("取消查询")){
+                    bikeID_edit.setText("");
+                    query_sql.setText("查询");
                 }
-                if (isquerying==false) {
-                    HttpUtils.GetBikeUnlockStatus(mHandler, GetBikeStatusUrl, bikeID);
-                    Toast.makeText(mContext,"开始查询...",Toast.LENGTH_SHORT).show();
-                    query_sql.setText("query......");
-                    isquerying=true;
-                }else if (isquerying==true){
-                    Toast.makeText(mContext,"正在查询,请稍后再试...",Toast.LENGTH_SHORT).show();
-                }
+
+
                 break;
             case R.id.im_send:
                 mChatService.write(et_send.getText().toString().getBytes());
