@@ -42,10 +42,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView tv_label;
     private EditText et_send;
     private EditText et_receive;
-    private CheckBox cb_hex;
+    private EditText bikeID_edit;
     private ScrollView mScrollView;
 
-    private final String bikeID="hope1";
+    private String bikeID=null;
 
     /**定位部分*/
     //声明 AMapLocationClient 类对象
@@ -167,7 +167,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         tv_label=(TextView)findViewById(R.id.tv_label);
         et_send=(EditText)findViewById(R.id.et_send);
         et_receive=(EditText)findViewById(R.id.et_receive);
-        cb_hex=(CheckBox)findViewById(R.id.cb_hex);
+        bikeID_edit=(EditText)findViewById(R.id.bikeID);
         mScrollView=(ScrollView)findViewById(R.id.scrol_view);
         query_sql=(Button)findViewById(R.id.query_sql);
 
@@ -199,6 +199,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 et_receive.setText("");
                 break;
             case R.id.query_sql:
+                bikeID=bikeID_edit.getText().toString().trim();
+                if (bikeID.equals("")){
+                    Toast.makeText(mContext,"请输入BikeID，再查询！",Toast.LENGTH_SHORT).show();
+                }
                 if (isquerying==false) {
                     HttpUtils.GetBikeUnlockStatus(mHandler, GetBikeStatusUrl, bikeID);
                     Toast.makeText(mContext,"开始查询...",Toast.LENGTH_SHORT).show();
@@ -274,9 +278,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         HttpUtils.GetBikeUnlockStatus(mHandler,GetBikeStatusUrl,bikeID);
                     }
 
-                    if (cb_hex.isChecked()){
-                        readTxt = HexUtils.bytesToHexStringWithSpace(buf);
-                    }
                     et_receive.append(readTxt);
                     scrollToBottom(mScrollView,et_receive);
                     break;
